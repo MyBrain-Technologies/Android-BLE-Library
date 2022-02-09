@@ -8,8 +8,8 @@ android {
         minSdkVersion 18
         targetSdkVersion 30
 
-        versionCode 100
-        versionName '2.3.1.mbt.rc1'
+        versionCode 101
+        versionName '2.3.1.mbt.rc2'
     }
 
     buildTypes {
@@ -30,7 +30,7 @@ dependencies {
     if (useLocalModuleBle) {
         api project(':ble')
     } else {
-        implementation 'no.nordicsemi.android:ble:2.3.1.mbt.rc1'
+        api 'no.nordicsemi.android:ble:2.3.1.mbt.rc1'
     }
 
     testImplementation 'junit:junit:4.13.2'
