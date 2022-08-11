@@ -602,6 +602,8 @@ abstract class BleManagerHandler extends RequestHandler {
 	}
 
 	private boolean internalDisconnect(final int reason) {
+		log(Log.VERBOSE, "internalDisconnect : reason = " + reason);
+
 		userDisconnected = true;
 		initialConnection = false;
 		ready = false;
