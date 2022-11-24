@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 30
@@ -6,6 +7,9 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 30
+
+        versionCode 101
+        versionName '2.3.1.mbt.rc2'
     }
 
     buildTypes {
@@ -22,19 +26,48 @@ android {
 }
 
 dependencies {
-    api project(':ble')
+    def useLocalModuleBle = false
+    if (useLocalModuleBle) {
+        api project(':ble')
+    } else {
+        api 'no.nordicsemi.android:ble:2.3.1.mbt.rc1'
+    }
 
     testImplementation 'junit:junit:4.13.2'
 }
 
-// === Maven Central configuration ===
-// The following file exists only when Android BLE Library project is opened, but not
-// when the module is loaded to a different project.
-if (rootProject.file('gradle/publish-module.gradle').exists()) {
-    ext {
-        POM_ARTIFACT_ID = 'ble-common'
-        POM_NAME = 'Bluetooth Low Energy library for Android'
-        POM_PACKAGING = 'aar'
+//************************************************
+//* publish artifact to maven
+//* add your credentials in local.properties
+//* to run from terminal: ./gradlew :ble-common:publishReleasePublicationToMavenRepository --stacktrace
+//************************************************
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def mavenUsername = properties.getProperty('maven_user')
+def mavenPassword = properties.getProperty('maven_password')
+def releasesRepoUrl = 'https://package.mybraintech.com/repository/maven-2-releases/'
+def snapshotsRepoUrl = 'https://package.mybraintech.com/repository/maven-2-snapshots/'
+
+project.afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                url = android.defaultConfig.versionName.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username mavenUsername
+                    password mavenPassword
+                }
+            }
+        }
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'no.nordicsemi.android'
+                artifactId = 'ble-common'
+                version = android.defaultConfig.versionName
+            }
+        }
     }
-    apply from: rootProject.file('gradle/publish-module.gradle')
 }
